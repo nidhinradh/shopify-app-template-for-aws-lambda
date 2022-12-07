@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+Description: >-
+  shopify-poc
+
+  Shopify POC.
+
+Parameters:
+  Environment:
+    Type: String
+    Description: Name of environment
+    AllowedValues:
+      - dev
+      - prod
+
+Resources:
+  ShopifyPOC:
+    Type: AWS::Serverless::Function
+    Metadata:
+      DockerContext: .
+      DockerTag: shopify_poc
+      Dockerfile: Dockerfile
+      DockerBuildArgs:
+        SHOPIFY_API_KEY: ${ShopifyAPIKey}
+    Properties:
+      FunctionName: !Sub shopify_poc_${Environment}
+      PackageType: Image
+      MemorySize: 2048
+      Timeout: 900
+      Environment:
+        Variables:
+          ENV: !Sub ${Environment}
+          SHOPIFY_API_KEY: ${ShopifyAPIKey}
+          SHOPIFY_API_SECRET: ${ShopifyAPISecret}
+          SCOPES: write_products
+          HOST: ${HOST}
+          PORT: '8080'
+      FunctionUrlConfig:
+        AuthType: NONE
